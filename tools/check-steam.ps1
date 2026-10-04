@@ -23,11 +23,14 @@
 .EXAMPLE
   .\tools\check-steam.ps1
   .\tools\check-steam.ps1 -HostName steamcommunity.com
+  .\tools\check-steam.ps1 -Ip 23.15.142.182 -Tries 25
 #>
 param(
     [string]$HostName = "store.steampowered.com",
     [int]$Tries = 3,
-    [int]$TimeoutSeconds = 6
+    [int]$TimeoutSeconds = 6,
+    # Test only this IP (skips DNS). Use with a larger -Tries to compare presets.
+    [string]$Ip
 )
 
 $ips = [System.Collections.Generic.HashSet[string]]::new()
@@ -36,12 +39,16 @@ function Add-Ips($records) {
     $records | Where-Object Type -eq 'A' | ForEach-Object { [void]$ips.Add($_.IPAddress) }
 }
 
-try { Add-Ips (Resolve-DnsName $HostName -Type A -DnsOnly -ErrorAction Stop) } catch {}
-foreach ($round in 1..3) {
-    foreach ($server in "1.1.1.1", "8.8.8.8", "9.9.9.9") {
-        try { Add-Ips (Resolve-DnsName $HostName -Type A -Server $server -DnsOnly -ErrorAction Stop) } catch {}
+if ($Ip) {
+    [void]$ips.Add($Ip)
+} else {
+    try { Add-Ips (Resolve-DnsName $HostName -Type A -DnsOnly -ErrorAction Stop) } catch {}
+    foreach ($round in 1..3) {
+        foreach ($server in "1.1.1.1", "8.8.8.8", "9.9.9.9") {
+            try { Add-Ips (Resolve-DnsName $HostName -Type A -Server $server -DnsOnly -ErrorAction Stop) } catch {}
+        }
+        Start-Sleep -Milliseconds 700
     }
-    Start-Sleep -Milliseconds 700
 }
 
 if ($ips.Count -eq 0) {
