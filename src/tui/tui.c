@@ -182,6 +182,43 @@ static void change(struct state *st, int delta) {
 /* Run in the foreground                                               */
 /* ------------------------------------------------------------------ */
 
+/*
+ * The WinDivert kernel driver can stay loaded after goodbyedpi.exe is gone and
+ * keeps WinDivert64.sys locked ("file in use"). Stop and remove its service;
+ * WinDivert installs it again the next time goodbyedpi.exe starts.
+ * Best effort: if something else still uses the driver, stopping fails and
+ * the service is left alone.
+ */
+static void stop_windivert_driver(void) {
+    SC_HANDLE scm = OpenSCManagerA(NULL, NULL, SC_MANAGER_CONNECT);
+    SC_HANDLE svc;
+    SERVICE_STATUS ss;
+    int stopped = 0;
+    int i;
+
+    if (!scm)
+        return;
+    svc = OpenServiceA(scm, "WinDivert", SERVICE_STOP | SERVICE_QUERY_STATUS | DELETE);
+    if (svc) {
+        if (ControlService(svc, SERVICE_CONTROL_STOP, &ss) ||
+            GetLastError() == ERROR_SERVICE_NOT_ACTIVE) {
+            for (i = 0; i < 30; i++) {
+                if (!QueryServiceStatus(svc, &ss))
+                    break;
+                if (ss.dwCurrentState == SERVICE_STOPPED) {
+                    stopped = 1;
+                    break;
+                }
+                Sleep(100);
+            }
+        }
+        if (stopped)
+            DeleteService(svc);
+        CloseServiceHandle(svc);
+    }
+    CloseServiceHandle(scm);
+}
+
 static BOOL WINAPI ignore_ctrl_c(DWORD type) {
     /* While goodbyedpi runs, Ctrl+C is meant for it, not for this launcher. */
     return type == CTRL_C_EVENT || type == CTRL_BREAK_EVENT;
@@ -212,6 +249,7 @@ static void run(const struct state *st) {
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
         printf("\n  goodbyedpi.exe exited with code %lu\n", (unsigned long)code);
+        stop_windivert_driver();
     } else {
         printf("\n  Could not start goodbyedpi.exe (error %lu)\n", (unsigned long)GetLastError());
     }
@@ -458,6 +496,8 @@ static int run_in_tray(const struct state *st) {
         GetExitCodeProcess(pi.hProcess, &code);
         printf("\n  goodbyedpi.exe exited with code %lu\n", (unsigned long)code);
         TerminateProcess(pi.hProcess, 1);
+        WaitForSingleObject(pi.hProcess, 3000);
+        stop_windivert_driver();
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
         CloseHandle(rd);
@@ -478,6 +518,8 @@ static int run_in_tray(const struct state *st) {
     tray_loop(pi.hProcess, args);
 
     TerminateProcess(pi.hProcess, 0);
+    WaitForSingleObject(pi.hProcess, 3000); /* its handles must be closed before the driver can stop */
+    stop_windivert_driver();
     CloseHandle(pi.hProcess);
     CloseHandle(pi.hThread);
     if (job)
