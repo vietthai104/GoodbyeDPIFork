@@ -120,6 +120,10 @@ Options placed after `--preset` are added on top; your own `--dns-addr` replaces
 
 **These are starting points, not guarantees.** Which mode works depends on your ISP, modem/router and changes over time. If a preset does not work, try another one (the ISP presets intentionally use different fake-packet modes), and use [blockcheck](https://github.com/ValdikSS/blockcheck) to find what works on your line. Presets only redirect plain UDP DNS: if your ISP intercepts DNS to 1.1.1.1/8.8.8.8 as well, use DNS-over-HTTPS in your browser. Steam game traffic over UDP is not handled by this tool.
 
+### TUI launcher
+
+`goodbyedpi-tui.exe` (next to `goodbyedpi.exe`) is a keyboard-driven menu on top of the presets: choose a preset, DNS server, QUIC blocking and verbose DNS log, see the resulting command line, and press Start. Up/Down moves, Left/Right changes a value, Space/Enter selects, Q quits. Ctrl+C stops goodbyedpi and returns to the menu. Requires Windows 10 or newer and administrator rights (it asks for elevation, like goodbyedpi.exe).
+
 ## How to check
 To check if your ISP's DPI could be circumvented, first make sure that your provider does not poison DNS answers by enabling "Secure DNS (DNS over HTTPS)" option in your browser.
 
