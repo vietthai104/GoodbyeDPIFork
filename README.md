@@ -99,6 +99,27 @@ Modern modesets (more stable, more compatible, faster):
 
  Note: combination of --wrong-seq and --wrong-chksum generates two different fake packets.
 ```
+
+## Presets (Vietnam)
+
+```
+goodbyedpi.exe --preset <name> [extra options]
+goodbyedpi.exe --list-presets
+```
+
+| Preset    | Expands to                                                             |
+|-----------|------------------------------------------------------------------------|
+| `viettel` | `-9 --dns-addr 1.1.1.1`                                                |
+| `fpt`     | `-5 --dns-addr 8.8.8.8`                                                |
+| `vnpt`    | `-6 --dns-addr 1.1.1.1`                                                |
+| `steam`   | `-f 2 -e 2 --wrong-seq --wrong-chksum --reverse-frag --max-payload=1200 --frag-by-sni --blacklist-builtin steam --dns-addr 1.1.1.1` |
+
+The `steam` preset only touches connections to Steam domains (`--blacklist-builtin steam`), the rest of your traffic is left alone. The ISP presets apply to all traffic.
+
+Options placed after `--preset` are added on top; your own `--dns-addr` replaces the preset's one.
+
+**These are starting points, not guarantees.** Which mode works depends on your ISP, modem/router and changes over time. If a preset does not work, try another one (the ISP presets intentionally use different fake-packet modes), and use [blockcheck](https://github.com/ValdikSS/blockcheck) to find what works on your line. Presets only redirect plain UDP DNS: if your ISP intercepts DNS to 1.1.1.1/8.8.8.8 as well, use DNS-over-HTTPS in your browser. Steam game traffic over UDP is not handled by this tool.
+
 ## How to check
 To check if your ISP's DPI could be circumvented, first make sure that your provider does not poison DNS answers by enabling "Secure DNS (DNS over HTTPS)" option in your browser.
 
