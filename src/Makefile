@@ -62,7 +62,7 @@ tui/tui-rc.o: tui/tui-rc.rc tui/tui.exe.manifest
 
 # The TUI launcher does not use WinDivert, it only starts goodbyedpi.exe.
 $(TUI_TARGET): tui/tui.c tui/tui-rc.o
-	$(CC) -std=c99 -pie -fPIE -O2 -Wall -Wextra -Wpedantic tui/tui.c tui/tui-rc.o $(LDFLAGS) -l:libssp.a -s -o $@
+	$(CC) -std=c99 -pie -fPIE -O2 -Wall -Wextra -Wpedantic tui/tui.c tui/tui-rc.o $(LDFLAGS) -l:libssp.a -luser32 -lshell32 -s -o $@
 
 clean:
 	-rm -f *.o utils/*.o tui/*.o

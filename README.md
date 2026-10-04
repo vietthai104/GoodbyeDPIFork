@@ -122,7 +122,11 @@ Options placed after `--preset` are added on top; your own `--dns-addr` replaces
 
 ### TUI launcher
 
-`goodbyedpi-tui.exe` (next to `goodbyedpi.exe`) is a keyboard-driven menu on top of the presets: choose a preset, DNS server, QUIC blocking and verbose DNS log, see the resulting command line, and press Start. Up/Down moves, Left/Right changes a value, Space/Enter selects, Q quits. Ctrl+C stops goodbyedpi and returns to the menu. Requires Windows 10 or newer and administrator rights (it asks for elevation, like goodbyedpi.exe).
+`goodbyedpi-tui.exe` (next to `goodbyedpi.exe`) is a keyboard-driven menu on top of the presets: choose a preset, DNS server, QUIC blocking and verbose DNS log, see the resulting command line, and press Start. Up/Down moves, Left/Right changes a value, Space/Enter selects, Q quits. Ctrl+C stops goodbyedpi and returns to the menu.
+
+With **Minimize to tray** turned on, Start runs goodbyedpi.exe hidden, closes the console once it reports it is running, and leaves an icon in the notification area. Right-click the icon and choose *Exit and stop GoodbyeDPI* to stop it. goodbyedpi.exe is also stopped if the launcher is killed. If it starts but later dies on its own, the icon shows a notification. Only one tray instance can run at a time. To skip the menu, for example from a shortcut: `goodbyedpi-tui.exe --tray steam` (preset name optional).
+
+Note: if the tray icon is missing, check the hidden-icons arrow (^) next to the clock. Requires Windows 10 or newer and administrator rights (it asks for elevation, like goodbyedpi.exe).
 
 ## How to check
 To check if your ISP's DPI could be circumvented, first make sure that your provider does not poison DNS answers by enabling "Secure DNS (DNS over HTTPS)" option in your browser.

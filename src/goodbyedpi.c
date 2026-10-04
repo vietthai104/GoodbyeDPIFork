@@ -649,6 +649,9 @@ int main(int argc, char *argv[]) {
     SetDllDirectory("");
     SetSearchPathMode(BASE_SEARCH_PATH_ENABLE_SAFE_SEARCHMODE | BASE_SEARCH_PATH_PERMANENT);
 
+    /* Output must reach a parent reading our stdout through a pipe (the TUI) right away */
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     if (!running_from_service) {
         running_from_service = 1;
         if (service_register(argc, argv)) {
