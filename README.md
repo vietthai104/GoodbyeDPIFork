@@ -180,6 +180,17 @@ Check examples in `service_install_russia_blacklist.cmd`, `service_install_russi
 
 Modify them according to your own needs.
 
+# Signing the executables for your own machine
+
+`tools/sign-selfsigned.ps1` signs `goodbyedpi.exe` and `goodbyedpi-tui.exe` with a self-signed certificate (created in your user store, private key never exported). `tools/trust-selfsigned.ps1` (run as Administrator) makes your machine trust it; `-Remove` undoes that.
+
+```powershell
+.\tools\sign-selfsigned.ps1 -Folder .\dist
+.\tools\trust-selfsigned.ps1        # elevated PowerShell
+```
+
+A self-signed certificate is only trusted where you install it, so it does not help other people who download the files. SmartScreen reputation and Smart App Control are decided by Microsoft from trusted publishers, which a self-signed certificate is not. For files you downloaded yourself, `Unblock-File .\dist\*` removes the "downloaded from the internet" mark that triggers SmartScreen.
+
 # Known issues
 
 * Horribly outdated Windows 7 installations are not able to load WinDivert driver due to missing support for SHA256 digital signatures. Install KB3033929 [x86](https://www.microsoft.com/en-us/download/details.aspx?id=46078)/[x64](https://www.microsoft.com/en-us/download/details.aspx?id=46148), or better, update the whole system using Windows Update.
